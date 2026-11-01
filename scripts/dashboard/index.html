@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sense Before Touch | ROS 2 Live AI</title>
+<style>
+:root{color-scheme:dark;--bg:#080e19;--panel:#101d30;--line:#253853;--muted:#a0b4c8;--text:#f0f7ff;--mint:#59e4c6;--orange:#ffbe75;--blue:#75bdff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% -10%,#172b45 0%,var(--bg) 55%);color:var(--text);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1050px;margin:auto;padding:20px 22px 25px}header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:10px 0 17px}header h1{font-size:clamp(20px,3vw,34px);letter-spacing:-.9px;margin:7px 0 5px}header p{font-size:12px;color:var(--muted);margin:0}.eyebrow{font-weight:800;color:var(--mint);font-size:10px;letter-spacing:2px}#live{background:#27354b;color:#cad5e4;border-radius:30px;padding:8px 12px;font-size:12px;font-weight:700;white-space:nowrap}.online{background:#17453d!important;color:var(--mint)!important}.stale{background:#563522!important;color:var(--orange)!important}
+.grid{display:grid;grid-template-columns:1.07fr .93fr;gap:13px}.panel{background:linear-gradient(150deg,#14243b,#101b2d);border:1px solid var(--line);border-radius:14px;padding:19px;min-width:0}.heading{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:13px}.kicker{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.4px}.big{font-size:clamp(22px,3vw,38px);letter-spacing:-1px;font-weight:800;word-break:break-word;line-height:1.15}.accent{color:var(--mint)}.tiny{color:var(--muted);font-size:12px}.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.pill{background:#24364d;border:1px solid #314961;padding:6px 9px;border-radius:7px;font-size:11px;font-weight:650}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}.metric-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px}.number{font-weight:800;font-size:30px;letter-spacing:-1px}.progress{height:11px;background:#29394a;border-radius:20px;overflow:hidden;margin:11px 0 9px}.progress>div{height:100%;background:linear-gradient(90deg,#36bcad,#75ffe0);width:0;transition:width .25s}.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#0a1626;border:1px solid #27374c;border-radius:10px;padding:12px 9px}.stat label{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}.stat strong{font-size:20px}.full{grid-column:1/-1}.box-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.box{border:1px solid #35465d;background:#101d2e;border-radius:10px;padding:12px}.box.selected{border-color:#75bdff;box-shadow:0 0 0 1px #75bdff66}.box h3{margin:0 0 12px;font-size:13px}.box .cls{font-size:14px;font-weight:800;overflow-wrap:anywhere}.box .cnt{color:#a0b4c8;font-size:11px;margin-top:7px}
+.events{max-height:192px;overflow:auto;display:flex;flex-direction:column;gap:8px}.event{display:flex;align-items:flex-start;gap:12px;padding:9px;border-bottom:1px solid #25354a;font-size:12px}.event span:first-child{color:#8da7c2;min-width:45px;font-variant-numeric:tabular-nums}.event span:last-child{overflow-wrap:anywhere}.decision{font-weight:800;color:var(--orange)}.decision.ok{color:var(--mint)}.foot{margin-top:13px;color:#88a1b9;font-size:11px;line-height:1.5}
+@media(max-width:700px){main{padding:12px}.grid{grid-template-columns:1fr}.panel{padding:14px}.box-grid{gap:5px}.box{padding:9px}.box .cls{font-size:12px}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">PHYSICAL AI · GAZEBO + ROS 2</div><h1>SENSE BEFORE TOUCH</h1><p>Autonomous warehouse inspection · Uncertainty-aware decision making</p></div><div id="live">CONNECTING</div></header>
+<div class="grid">
+<section class="panel"><div class="heading"><span class="kicker">MISSION PHASE</span><span id="elapsed" class="tiny">00:00</span></div><div id="phase" class="big">WAITING FOR DATA</div><div class="pills"><span class="pill">TARGET: <span id="target">—</span></span><span class="pill">POSITION: <span id="position">—</span></span></div><hr><div class="heading"><span class="kicker">AI PREDICTION</span><span id="decision" class="decision">—</span></div><div id="prediction" class="big accent">—</div><div class="metric-row" style="margin-top:17px"><span>Confidence</span><span id="confidence" class="number">—</span></div><div class="progress"><div id="confidence-bar"></div></div><div class="tiny">Policy: re-inspect if confidence &lt; 77% (up to 2 additional inspections)</div><div id="distance" class="tiny" style="margin-top:12px">Reading distance: —</div></section>
+<section class="panel"><div class="heading"><span class="kicker">MISSION PROGRESS</span><span id="progress-text" class="tiny">0 / 3</span></div><div class="stat-grid"><div class="stat"><label>CLASSIFIED</label><strong id="completed">0</strong></div><div class="stat"><label>CORRECT*</label><strong id="correct">0</strong></div><div class="stat"><label>ACTIVE INSPECTIONS</label><strong id="inspections">0</strong></div></div><hr><div class="heading"><span class="kicker">BOX INSPECTION RESULTS</span></div><div id="boxes" class="box-grid"><div class="box"><h3>BOX A</h3>—</div><div class="box"><h3>BOX B</h3>—</div><div class="box"><h3>BOX C</h3>—</div></div><p class="foot">* Correctness is evaluated against known simulated labels. Sensor measurements are synthetic multispectral data, not Gazebo camera images.</p></section>
+<section class="panel full"><div class="heading"><span class="kicker">LIVE AI EVENT TIMELINE</span><span id="event-count" class="tiny">0 events</span></div><div id="events" class="events"><div class="tiny">Waiting for telemetry…</div></div></section>
+</div><div class="foot">Data source: ROS 2 <code>/rescue_ai/telemetry</code> · Updates every 0.25 s · Browser refresh does not restart the mission</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+function safe(s){return String(s??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function stamp(seconds){const s=Math.floor(seconds||0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function statusText(p){return ({TO_SCAN:'NAVIGATING TO SCAN',TO_INSPECT:'APPROACHING FOR RE-INSPECTION',SENSING:'SCANNING',TO_HOME:'RETURNING HOME',FINISHED:'MISSION COMPLETE',STOPPED:'SAFETY STOP'})[p]||p||'WAITING';}
+function render(d){
+  $('phase').textContent=statusText(d.phase);$('phase').style.color=d.phase==='FINISHED'?'#59e4c6':d.phase==='STOPPED'?'#ffbe75':'#f0f7ff';
+  $('elapsed').textContent=stamp(d.elapsed_s);$('target').textContent=d.current_box?'BOX '+d.current_box:d.phase==='TO_HOME'||d.phase==='FINISHED'?'BASE':'—';
+  $('position').textContent=d.pose?`${d.pose.x.toFixed(2)}, ${d.pose.y.toFixed(2)} m`:'—';
+  $('prediction').textContent=d.last_prediction||'—';$('confidence').textContent=d.last_confidence!=null?(100*d.last_confidence).toFixed(1)+'%':'—';
+  $('confidence-bar').style.width=d.last_confidence!=null?(100*d.last_confidence).toFixed(1)+'%':'0%';
+  $('distance').textContent=d.last_distance!=null?'Reading distance: '+d.last_distance.toFixed(2)+' m':'Reading distance: —';
+  const dec=$('decision');dec.textContent=d.last_decision||'—';dec.className='decision'+(String(d.last_decision).startsWith('CLASSIFIED')?' ok':'');
+  $('completed').textContent=d.completed??0;$('correct').textContent=d.correct??0;$('inspections').textContent=d.active_inspections??0;$('progress-text').textContent=(d.completed??0)+' / 3';
+  $('boxes').innerHTML=['A','B','C'].map(k=>{const b=d.boxes?.[k]||{};let detail=b.classification?`${safe(b.classification)} · ${(b.confidence*100).toFixed(1)}%`:(b.decision==='RE-INSPECT'?'RE-INSPECT':'PENDING');return `<div class="box ${d.current_box===k?'selected':''}"><h3>BOX ${k}</h3><div class="cls">${detail}</div><div class="cnt">Observations: ${Number(b.observations||0)}</div></div>`}).join('');
+  let ev=d.events||[];$('event-count').textContent=ev.length+' recent events';$('events').innerHTML=ev.length?ev.slice().reverse().map(e=>`<div class="event"><span>${stamp(e.t)}</span><span>${safe(e.message)}</span></div>`).join(''):'<div class="tiny">No events yet</div>';
+}
+async function poll(){try{const r=await fetch('/api/telemetry',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const v=await r.json();$('live').textContent=v.connected?'● ROS 2 LIVE':v.data?'● ROS 2 STALE':'● WAITING FOR ROS 2';$('live').className=v.connected?'online':v.data?'stale':'';if(v.data)render(v.data);}catch(e){$('live').textContent='● DASHBOARD OFFLINE';$('live').className='stale';}}
+poll();setInterval(poll,500);
+</script>
+</body></html>
